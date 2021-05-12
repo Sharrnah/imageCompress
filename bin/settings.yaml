@@ -1,0 +1,3 @@
+targetFileSize: '8 MB'
+workers: 20
+newFilename: '{filename}_compressed.{ext}'
