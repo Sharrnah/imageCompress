@@ -2,6 +2,7 @@ set GOARCH=amd64
 set GOOS=windows
 set CGO_ENABLED=1
 set GOTMPDIR=%cd%
+set GOPATH=%cd%/.tmp
 
 set origdir=%cd%
 

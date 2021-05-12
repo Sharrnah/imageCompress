@@ -172,6 +172,8 @@ func main() {
 
 	if len(os.Args) < 2 {
 		fmt.Println("You must drag and drop a file!")
+		fmt.Println("(Press Enter to exit)")
+		fmt.Scanln()
 		os.Exit(1)
 	} else {
 		fileArray := os.Args[1:]
