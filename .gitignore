@@ -1,0 +1,4 @@
+bin/*
+!bin/settings.yaml
+.idea
+ImageCompress.zip
