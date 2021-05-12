@@ -1,3 +1,5 @@
 targetFileSize: '8 MB'
 workers: 20
 newFilename: '{filename}_compressed.{ext}'
+# "./" for same folder as the pictures / folder
+targetFolder: './'

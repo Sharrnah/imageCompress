@@ -1,6 +1,7 @@
 package settings
 
 import (
+	"fmt"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"log"
@@ -11,6 +12,7 @@ type conf struct {
 	TargetFileSize       string         `yaml:"targetFileSize"`
 	Workers              int          	`yaml:"workers"`
 	NewFilename          string         `yaml:"newFilename"`
+	TargetFolder          string         `yaml:"targetFolder"`
 }
 
 var Config conf
@@ -35,12 +37,15 @@ func confLoader(c interface{}, configFile string) interface{} {
 		if err != nil {
 			log.Fatalf("Unmarshal: %v", err)
 		}
+	} else {
+		log.Printf("settings.yaml not found (Press Enter to exit)")
+		fmt.Scanln()
+		os.Exit(1)
 	}
 
 	return c
 }
 
-func (c *conf) GetConf() *conf {
-	configDir := "settings.yaml"
-	return confLoader(c, configDir).(*conf)
+func (c *conf) GetConf(configFile string) *conf {
+	return confLoader(c, configFile).(*conf)
 }

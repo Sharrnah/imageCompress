@@ -124,9 +124,10 @@ type CompressWorker struct {
 func main() {
 	var Files []string
 
+	var ApplicationDir = filepath.Dir(os.Args[0])
 	// load config
 	var config = settings.Config
-	config.GetConf()
+	config.GetConf(filepath.Join(ApplicationDir, "settings.yaml"))
 
 	Workers = config.Workers
 
@@ -149,12 +150,13 @@ func main() {
 		file := compressWorker.(CompressWorker).File
 		spinnerBar := compressWorker.(CompressWorker).Bar
 
+
 		// compress file
 		fileImage, _ := openFile(file)
 		newFilename := strings.ReplaceAll(config.NewFilename, "{filename}", fileNameWithoutExtension(filepath.Base(file)))
 		newFilename = strings.ReplaceAll(newFilename, "{ext}", "jpg")
 
-		compressFile(newFilename, fileImage, int(wantedFileSize.Bytes()))
+		compressFile(filepath.Join(config.TargetFolder, newFilename), fileImage, int(wantedFileSize.Bytes()))
 
 		// add file to worker file list
 		Files = append(Files, file)
@@ -167,7 +169,6 @@ func main() {
 		defer wg.Done()
 	}, ants.WithExpiryDuration(3e+10))
 	defer pool.Release()
-
 
 
 	if len(os.Args) < 2 {
@@ -185,6 +186,7 @@ func main() {
 
 		for _, file := range fileArray {
 			file = strings.Replace(file, "File ", "", 1)
+
 			if isFile(file) {
 
 				var bar *mpb.Bar
