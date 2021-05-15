@@ -3,3 +3,5 @@ workers: 20
 newFilename: '{filename}_compressed.{ext}'
 # "./" for same folder as the pictures / folder
 targetFolder: './'
+# set tryRotateByFace to 0 to disable, set to 1 - 100 to set detection score threshold. (20 = above 20 is considered a hit)
+tryRotateByFace: 10.0

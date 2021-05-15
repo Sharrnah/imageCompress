@@ -12,7 +12,8 @@ type conf struct {
 	TargetFileSize       string         `yaml:"targetFileSize"`
 	Workers              int          	`yaml:"workers"`
 	NewFilename          string         `yaml:"newFilename"`
-	TargetFolder          string         `yaml:"targetFolder"`
+	TargetFolder         string         `yaml:"targetFolder"`
+	TryRotateByFace      float32        `yaml:"tryRotateByFace"`
 }
 
 var Config conf

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"ImageResize/detection"
 	"ImageResize/settings"
 	"bytes"
 	"fmt"
@@ -72,8 +73,9 @@ func openFile(file string) (image.Image, string) {
 	return img, fmtName
 }
 
-func findJpgSizeCompression(logFileName string, img image.Image, targetByteSize int) bytes.Buffer {
+func findJpgSizeCompression(img image.Image, targetByteSize int) (bytes.Buffer, int) {
 	var buf bytes.Buffer
+	var finalQuality = -1
 
 	for iQuality := 100; iQuality > 1; iQuality-- {
 		buf.Reset()
@@ -89,16 +91,16 @@ func findJpgSizeCompression(logFileName string, img image.Image, targetByteSize 
 
 		imageSize := buf.Len()
 		if imageSize <= targetByteSize {
-			fmt.Println("compression: " + strconv.Itoa(iQuality) + "% for " + logFileName)
+			finalQuality = iQuality
 			break
 		}
 	}
 
-	return buf
+	return buf, finalQuality
 }
 
-func compressFile(outputFile string, img image.Image, targetByteSize int) {
-	imageBuffer := findJpgSizeCompression(outputFile, img, targetByteSize)
+func compressFile(outputFile string, img image.Image, targetByteSize int) int {
+	imageBuffer, targetQuality := findJpgSizeCompression(img, targetByteSize)
 
 	f, err := os.Create(outputFile)
 	if err != nil {
@@ -111,6 +113,8 @@ func compressFile(outputFile string, img image.Image, targetByteSize int) {
 		fmt.Println("Error writing file!")
 		os.Exit(1)
 	}
+
+	return targetQuality
 }
 
 var Workers = 5
@@ -156,7 +160,19 @@ func main() {
 		newFilename := strings.ReplaceAll(config.NewFilename, "{filename}", fileNameWithoutExtension(filepath.Base(file)))
 		newFilename = strings.ReplaceAll(newFilename, "{ext}", "jpg")
 
-		compressFile(filepath.Join(config.TargetFolder, newFilename), fileImage, int(wantedFileSize.Bytes()))
+		// try to find image rotation based on faces in the image
+		rotated := false
+		if config.TryRotateByFace > 0 {
+			fileImage, rotated = detection.FindRotatedImage(fileImage, config.TryRotateByFace)
+		}
+
+		targetQuality := compressFile(filepath.Join(config.TargetFolder, newFilename), fileImage, int(wantedFileSize.Bytes()))
+
+		infoString := "compression: " + strconv.Itoa(targetQuality) + "% for " + filepath.Join(config.TargetFolder, newFilename)
+		if rotated {
+			infoString = infoString + " (Rotated)"
+		}
+		fmt.Println(infoString)
 
 		// add file to worker file list
 		Files = append(Files, file)
